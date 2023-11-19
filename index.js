@@ -9,8 +9,6 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wdcasbo.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -28,10 +26,18 @@ async function run() {
     await client.connect();
 
     const menuCollection = client.db("bistroDb").collection("menu");
+    const cartCollection = client.db("bistroDb").collection("carts");
     app.get('/menu',async(req,res)=>{
         const result= await menuCollection.find().toArray();
         res.send(result);
     })
+
+    //cart collection 
+    app.post('/carts', async (req, res) => {
+      const cartItem = req.body;
+      const result = await cartCollection.insertOne(cartItem);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -42,6 +48,12 @@ async function run() {
   }
 }
 run().catch(console.dir);
+
+ app.post('/carts', async (req, res) => {
+      const cartItem = req.body;
+      const result = await cartCollection.insertOne(cartItem);
+      res.send(result);
+    });
 
 
 app.get('/',(req,res)=>{
